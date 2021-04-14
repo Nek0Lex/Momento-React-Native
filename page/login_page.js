@@ -1,6 +1,15 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { ActivityIndicator, FlatList, StyleSheet, Text, View, Image, TextInput } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TextInput,
+} from "react-native";
 import {
   Button,
   Flex,
@@ -9,13 +18,38 @@ import {
   Card,
 } from "@ant-design/react-native";
 
+const axios = require("axios").default;
 
-const Login_page = ({ navigation }) => {
-  const [inputText, onChangeText] = React.useState("Useless Text");
-  const [number, onChangeNumber] = React.useState(null);
+export default function Login_page({ navigation }) {
+  const [username, onChangeUsername] = useState("username");
+  const [password, onChangePassword] = useState(null);
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
 
+  function login() {
+    const params = new URLSearchParams();
+    params.append("username", username);
+    params.append("password", password);
+    axios
+      .post("https://api.homing.dev/v1/login", params)
+      .then(function (response) {
+        console.log("response: " + JSON.stringify(response.data));
+
+        if (response.data.is_success == true) {
+          storeData(response.data.data.token);
+          navigation.navigate("Home");
+        }
+      }).then;
+  }
+
+  const storeData = async (value) => {
+      console.log("write");
+    try {
+      await AsyncStorage.setItem("token", value);
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   useEffect(() => {
     fetch("https://reactnative.dev/movies.json")
@@ -38,7 +72,7 @@ const Login_page = ({ navigation }) => {
       </View>
       <WhiteSpace />
       <View>
-        {isLoading ? (
+        {/* {isLoading ? (
           <ActivityIndicator />
         ) : (
           <FlatList
@@ -50,7 +84,7 @@ const Login_page = ({ navigation }) => {
               </Text>
             )}
           />
-        )}
+        )} */}
         <WingBlank size="lg">
           <Card>
             <Card.Header title="Login" />
@@ -59,16 +93,16 @@ const Login_page = ({ navigation }) => {
                 <WingBlank>
                   <TextInput
                     style={styles.input}
-                    onChangeText={onChangeText}
+                    onChangeText={onChangeUsername}
                     placeholder="Username"
                     // value={inputText}
                   />
                   <TextInput
                     style={styles.input}
-                    onChangeText={onChangeNumber}
-                    value={number}
-                    placeholder="useless placeholder"
-                    keyboardType="numeric"
+                    onChangeText={onChangePassword}
+                    value={password}
+                    placeholder="Password"
+                    secureTextEntry={true}
                   />
                   <View
                     flexDirection="row"
@@ -81,7 +115,7 @@ const Login_page = ({ navigation }) => {
                     <Button onPress={() => navigation.navigate("Home")}>
                       Register
                     </Button>
-                    <Button>Login</Button>
+                    <Button onPress={login}>Login</Button>
                   </View>
                 </WingBlank>
               </View>
@@ -93,9 +127,9 @@ const Login_page = ({ navigation }) => {
       <StatusBar style="auto" />
     </View>
   );
-};
+}
 
-export default Login_page;
+// export default Login_page;
 
 const styles = StyleSheet.create({
   container: {
@@ -114,9 +148,10 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   input: {
-    borderRadius: 10,
+    borderRadius: 4,
     height: 40,
     margin: 12,
+    paddingStart: 10,
     borderWidth: 1,
   },
 });

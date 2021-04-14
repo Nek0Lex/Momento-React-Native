@@ -10,8 +10,8 @@ import {
 } from "@ant-design/react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import Login_page from "./page/login_page";
 import Home_Page from "./page/home_page";
+import Login_page from "./page/login_page";
 
 const Stack = createStackNavigator();
 
